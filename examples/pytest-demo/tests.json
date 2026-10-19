@@ -1,0 +1,18 @@
+{
+  "tests": [
+    {
+      "id": "demo-add",
+      "command": ["{python}", "-m", "pytest", "-q", "examples/pytest-demo/test_calculator.py::test_add"],
+      "duration_seconds": 1.0,
+      "covers": ["examples/pytest-demo/calculator.py"],
+      "priority": 0.8
+    },
+    {
+      "id": "demo-divide",
+      "command": ["{python}", "-m", "pytest", "-q", "examples/pytest-demo/test_calculator.py::test_divide"],
+      "duration_seconds": 1.0,
+      "covers": ["examples/pytest-demo/calculator.py"],
+      "priority": 0.6
+    }
+  ]
+}

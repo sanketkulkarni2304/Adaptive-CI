@@ -1,0 +1,325 @@
+{
+  "tests": [
+    {
+      "id": "test_percent_discount",
+      "command": [
+        "{python}",
+        "examples/shop-demo/run_test.py",
+        "test_percent_discount"
+      ],
+      "duration_seconds": 0.45,
+      "covers": [
+        "examples/shop-demo/shop/pricing.py"
+      ],
+      "priority": 0.95
+    },
+    {
+      "id": "test_stack_discounts",
+      "command": [
+        "{python}",
+        "examples/shop-demo/run_test.py",
+        "test_stack_discounts"
+      ],
+      "duration_seconds": 0.55,
+      "covers": [
+        "examples/shop-demo/shop/pricing.py"
+      ],
+      "priority": 0.9
+    },
+    {
+      "id": "test_coupon_discount",
+      "command": [
+        "{python}",
+        "examples/shop-demo/run_test.py",
+        "test_coupon_discount"
+      ],
+      "duration_seconds": 0.5,
+      "covers": [
+        "examples/shop-demo/shop/pricing.py"
+      ],
+      "priority": 0.85
+    },
+    {
+      "id": "test_bulk_discount",
+      "command": [
+        "{python}",
+        "examples/shop-demo/run_test.py",
+        "test_bulk_discount"
+      ],
+      "duration_seconds": 0.6,
+      "covers": [
+        "examples/shop-demo/shop/pricing.py"
+      ],
+      "priority": 0.8
+    },
+    {
+      "id": "test_zero_percent",
+      "command": [
+        "{python}",
+        "examples/shop-demo/run_test.py",
+        "test_zero_percent"
+      ],
+      "duration_seconds": 0.4,
+      "covers": [
+        "examples/shop-demo/shop/pricing.py"
+      ],
+      "priority": 0.75
+    },
+    {
+      "id": "test_checkout_percent",
+      "command": [
+        "{python}",
+        "examples/shop-demo/run_test.py",
+        "test_checkout_percent"
+      ],
+      "duration_seconds": 0.7,
+      "covers": [
+        "examples/shop-demo/shop/checkout.py",
+        "examples/shop-demo/shop/pricing.py"
+      ],
+      "priority": 0.88
+    },
+    {
+      "id": "test_price_floor",
+      "command": [
+        "{python}",
+        "examples/shop-demo/run_test.py",
+        "test_price_floor"
+      ],
+      "duration_seconds": 0.5,
+      "covers": [
+        "examples/shop-demo/shop/pricing.py"
+      ],
+      "priority": 0.4
+    },
+    {
+      "id": "test_checkout_bulk",
+      "command": [
+        "{python}",
+        "examples/shop-demo/run_test.py",
+        "test_checkout_bulk"
+      ],
+      "duration_seconds": 0.8,
+      "covers": [
+        "examples/shop-demo/shop/checkout.py",
+        "examples/shop-demo/shop/pricing.py"
+      ],
+      "priority": 0.35
+    },
+    {
+      "id": "test_order_discounted_total",
+      "command": [
+        "{python}",
+        "examples/shop-demo/run_test.py",
+        "test_order_discounted_total"
+      ],
+      "duration_seconds": 1.2,
+      "covers": [
+        "examples/shop-demo/shop/orders.py",
+        "examples/shop-demo/shop/pricing.py"
+      ],
+      "priority": 0.3
+    },
+    {
+      "id": "test_tax_after_discount",
+      "command": [
+        "{python}",
+        "examples/shop-demo/run_test.py",
+        "test_tax_after_discount"
+      ],
+      "duration_seconds": 1.1,
+      "covers": [
+        "examples/shop-demo/shop/tax.py",
+        "examples/shop-demo/shop/pricing.py"
+      ],
+      "priority": 0.3
+    },
+    {
+      "id": "test_notify_on_discount",
+      "command": [
+        "{python}",
+        "examples/shop-demo/run_test.py",
+        "test_notify_on_discount"
+      ],
+      "duration_seconds": 0.9,
+      "covers": [
+        "examples/shop-demo/shop/notify.py",
+        "examples/shop-demo/shop/pricing.py"
+      ],
+      "priority": 0.25
+    },
+    {
+      "id": "test_rounding",
+      "command": [
+        "{python}",
+        "examples/shop-demo/run_test.py",
+        "test_rounding"
+      ],
+      "duration_seconds": 0.5,
+      "covers": [
+        "examples/shop-demo/shop/pricing.py"
+      ],
+      "priority": 0.2
+    },
+    {
+      "id": "test_full_price",
+      "command": [
+        "{python}",
+        "examples/shop-demo/run_test.py",
+        "test_full_price"
+      ],
+      "duration_seconds": 0.6,
+      "covers": [
+        "examples/shop-demo/shop/pricing.py"
+      ],
+      "priority": 0.2
+    },
+    {
+      "id": "test_pricing_audit",
+      "command": [
+        "{python}",
+        "examples/shop-demo/run_test.py",
+        "test_pricing_audit"
+      ],
+      "duration_seconds": 3.7,
+      "covers": [
+        "examples/shop-demo/shop/pricing.py",
+        "examples/shop-demo/shop/orders.py",
+        "examples/shop-demo/shop/tax.py",
+        "examples/shop-demo/shop/notify.py",
+        "examples/shop-demo/shop/checkout.py"
+      ],
+      "priority": 0.1
+    },
+    {
+      "id": "test_catalog_lookup",
+      "command": [
+        "{python}",
+        "examples/shop-demo/run_test.py",
+        "test_catalog_lookup"
+      ],
+      "duration_seconds": 0.4,
+      "covers": [
+        "examples/shop-demo/shop/catalog.py"
+      ],
+      "priority": 0.5
+    },
+    {
+      "id": "test_catalog_missing",
+      "command": [
+        "{python}",
+        "examples/shop-demo/run_test.py",
+        "test_catalog_missing"
+      ],
+      "duration_seconds": 0.35,
+      "covers": [
+        "examples/shop-demo/shop/catalog.py"
+      ],
+      "priority": 0.45
+    },
+    {
+      "id": "test_inventory_reserve",
+      "command": [
+        "{python}",
+        "examples/shop-demo/run_test.py",
+        "test_inventory_reserve"
+      ],
+      "duration_seconds": 0.5,
+      "covers": [
+        "examples/shop-demo/shop/inventory.py"
+      ],
+      "priority": 0.55
+    },
+    {
+      "id": "test_inventory_empty",
+      "command": [
+        "{python}",
+        "examples/shop-demo/run_test.py",
+        "test_inventory_empty"
+      ],
+      "duration_seconds": 0.45,
+      "covers": [
+        "examples/shop-demo/shop/inventory.py"
+      ],
+      "priority": 0.5
+    },
+    {
+      "id": "test_shipping_standard",
+      "command": [
+        "{python}",
+        "examples/shop-demo/run_test.py",
+        "test_shipping_standard"
+      ],
+      "duration_seconds": 0.7,
+      "covers": [
+        "examples/shop-demo/shop/shipping.py"
+      ],
+      "priority": 0.4
+    },
+    {
+      "id": "test_shipping_express",
+      "command": [
+        "{python}",
+        "examples/shop-demo/run_test.py",
+        "test_shipping_express"
+      ],
+      "duration_seconds": 1.5,
+      "covers": [
+        "examples/shop-demo/shop/shipping.py"
+      ],
+      "priority": 0.35
+    },
+    {
+      "id": "test_tax_basic",
+      "command": [
+        "{python}",
+        "examples/shop-demo/run_test.py",
+        "test_tax_basic"
+      ],
+      "duration_seconds": 0.4,
+      "covers": [
+        "examples/shop-demo/shop/tax.py"
+      ],
+      "priority": 0.4
+    },
+    {
+      "id": "test_order_id",
+      "command": [
+        "{python}",
+        "examples/shop-demo/run_test.py",
+        "test_order_id"
+      ],
+      "duration_seconds": 0.35,
+      "covers": [
+        "examples/shop-demo/shop/orders.py"
+      ],
+      "priority": 0.3
+    },
+    {
+      "id": "test_notify_message",
+      "command": [
+        "{python}",
+        "examples/shop-demo/run_test.py",
+        "test_notify_message"
+      ],
+      "duration_seconds": 0.3,
+      "covers": [
+        "examples/shop-demo/shop/notify.py"
+      ],
+      "priority": 0.3
+    },
+    {
+      "id": "test_checkout_stock",
+      "command": [
+        "{python}",
+        "examples/shop-demo/run_test.py",
+        "test_checkout_stock"
+      ],
+      "duration_seconds": 0.8,
+      "covers": [
+        "examples/shop-demo/shop/checkout.py"
+      ],
+      "priority": 0.6
+    }
+  ]
+}

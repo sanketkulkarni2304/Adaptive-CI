@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Adaptive CI</title>
+<style>
+  :root { --bg:#0b1220; --card:#121b2e; --line:#22304a; --text:#dbe4f3; --muted:#8193b2;
+          --accent:#38bdf8; --good:#34d399; --bad:#f87171; --warn:#fbbf24; }
+  * { box-sizing:border-box; }
+  body { margin:0; font:14px system-ui,sans-serif; background:var(--bg); color:var(--text); }
+  header { display:flex; align-items:center; gap:12px; padding:16px 28px; border-bottom:1px solid var(--line); }
+  header h1 { font-size:20px; margin:0; }
+  header .right { margin-left:auto; display:flex; gap:8px; }
+  button { background:#1d2b45; color:var(--text); border:1px solid var(--line); border-radius:6px;
+           padding:7px 12px; cursor:pointer; }
+  button.primary { background:var(--accent); color:#04111d; border:none; font-weight:600; }
+  button:disabled { opacity:.5; cursor:wait; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:14px; }
+  .muted { color:var(--muted); font-size:12px; }
+  .controls { display:flex; flex-wrap:wrap; gap:14px; align-items:end; margin:0 28px; }
+  .controls label { display:flex; flex-direction:column; gap:4px; font-size:12px; color:var(--muted); }
+  .controls input { width:90px; background:#0d1628; color:var(--text); border:1px solid var(--line);
+                    border-radius:6px; padding:6px; }
+  nav { display:flex; gap:4px; padding:16px 28px 0; border-bottom:1px solid var(--line); }
+  nav button { border:none; border-bottom:2px solid transparent; border-radius:0; background:none; }
+  nav button.active { border-color:var(--accent); color:var(--accent); }
+  main { padding:20px 28px; }
+  .view { display:none; }
+  .view.active { display:block; }
+  .tab { display:none; }
+  .tab.active { display:block; }
+  .kpis { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:16px; }
+  .kpi .value { font-size:22px; font-weight:700; margin-top:4px; }
+  table { width:100%; border-collapse:collapse; }
+  th, td { text-align:left; padding:8px 10px; border-bottom:1px solid var(--line); }
+  th { color:var(--muted); font-weight:500; font-size:12px; }
+  .pill { padding:2px 8px; border-radius:8px; font-size:11px; font-weight:600; }
+  .pass { background:#123826; color:var(--good); }
+  .fail { background:#3b1418; color:var(--bad); }
+  .bar { height:10px; background:var(--accent); border-radius:4px; }
+  .legend span { margin-right:14px; font-size:12px; }
+  .notice { margin:12px 28px 0; color:var(--warn); font-size:12px; }
+  .scroll { max-height:520px; overflow:auto; }
+  pre { margin:8px 0 0; white-space:pre-wrap; font:12px ui-monospace,monospace; }
+  .split { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Adaptive CI</h1>
+  <div class="right">
+    <button id="show-shop" class="primary">Shop run</button>
+    <button id="show-sim">Simulation</button>
+  </div>
+</header>
+
+<section id="shop-view" class="view active">
+  <div class="notice">Shop run shows a saved demo result. Run shop demo uses the same command as the terminal. Refresh only reloads the last saved result.</div>
+  <div class="controls" style="margin-top:12px">
+    <button class="primary" id="run-shop">Run shop demo</button>
+    <button id="refresh-shop">Refresh from last command</button>
+    <span class="muted" id="shop-status"></span>
+  </div>
+  <div id="shop-empty" class="card" style="margin:16px 28px" hidden></div>
+  <div id="shop-body" hidden>
+    <nav id="shop-nav">
+      <button data-tab="shop-change" class="active">Change</button>
+      <button data-tab="shop-scores">Scores</button>
+      <button data-tab="shop-methods">Methods</button>
+      <button data-tab="shop-results">Test results</button>
+      <button data-tab="shop-brain">Q-table</button>
+    </nav>
+    <main>
+      <div class="tab active" id="shop-change">
+        <div class="kpis" id="shop-kpis"></div>
+        <div class="card"><h3>Git diff from the command</h3><div class="muted" id="shop-git-label"></div><pre id="shop-diff"></pre></div>
+      </div>
+      <div class="tab" id="shop-scores">
+        <div class="card scroll"><table><thead><tr><th>Test</th><th>Seconds</th><th>Files</th><th>Priority</th><th>History</th><th>P(fail)</th><th>Value</th></tr></thead><tbody id="shop-score-rows"></tbody></table></div>
+      </div>
+      <div class="tab" id="shop-methods">
+        <div class="card"><table><thead><tr><th>Method</th><th>Tests</th><th>Time</th><th>Fits budget</th><th>Bug tests</th><th>Long audit</th></tr></thead><tbody id="shop-method-rows"></tbody></table>
+          <p class="muted" id="shop-note"></p></div>
+      </div>
+      <div class="tab" id="shop-results">
+        <div class="card"><table><thead><tr><th>Test</th><th>Result</th><th>Seconds</th></tr></thead><tbody id="shop-result-rows"></tbody></table>
+          <p class="muted" id="shop-result-note"></p></div>
+      </div>
+      <div class="tab" id="shop-brain">
+        <div class="kpis" id="shop-brain-kpis"></div>
+        <div class="split">
+          <div class="card scroll"><h3>Learned action in each state</h3><table><thead><tr><th>State</th><th>Remove</th><th>Insert</th><th>Amount</th><th>Q</th></tr></thead><tbody id="shop-policy"></tbody></table></div>
+          <div class="card scroll"><h3>Moves tried during this search</h3><table><tbody id="shop-operators"></tbody></table></div>
+        </div>
+      </div>
+    </main>
+  </div>
+</section>
+
+<section id="sim-view" class="view">
+  <div class="notice">This view is a made-up series of builds. It is not the shop run and it is not a real project history.</div>
+  <div class="controls" style="margin-top:12px">
+    <label>Tests<input id="tests" type="number" value="25" min="4" max="200"></label>
+    <label>Builds<input id="builds" type="number" value="40" min="2" max="500"></label>
+    <label>Budget (s)<input id="budget" type="number" value="60" min="1"></label>
+    <label>Seed<input id="seed" type="number" value="42"></label>
+    <label>Iterations<input id="iterations" type="number" value="40" min="1" max="1000"></label>
+    <button class="primary" id="run">Run simulation</button>
+    <span class="muted" id="status"></span>
+  </div>
+  <nav id="sim-nav">
+    <button data-tab="compare" class="active">Comparison</button>
+    <button data-tab="curves">Learning curves</button>
+    <button data-tab="brain">Q-learning brain</button>
+    <button data-tab="suite">Test suite</button>
+  </nav>
+  <main>
+    <div class="tab active" id="compare">
+      <div class="kpis" id="kpis"></div>
+      <div class="card"><table><thead><tr><th>Method</th><th>Fault detection</th><th>Faulty builds caught</th><th>Budget use</th><th>Objective</th><th>Overhead</th></tr></thead><tbody id="methods"></tbody></table></div>
+    </div>
+    <div class="tab" id="curves">
+      <div class="card"><div class="legend" id="legend"></div><svg id="chart" viewBox="0 0 900 340" width="100%"></svg>
+        <div class="muted">Share of faults found as more simulated builds finish.</div></div>
+    </div>
+    <div class="tab" id="brain">
+      <div class="kpis" id="brainKpis"></div>
+      <div class="split">
+        <div class="card scroll"><h3>Learned best action per state</h3><div class="muted">State = budget left : time without improvement : distance from best</div>
+          <table><thead><tr><th>State</th><th>Remove</th><th>Insert</th><th>Amount</th><th>Q</th></tr></thead><tbody id="policy"></tbody></table></div>
+        <div class="card scroll"><h3>Most used move combinations</h3><table><tbody id="operators"></tbody></table></div>
+      </div>
+    </div>
+    <div class="tab" id="suite">
+      <div class="card scroll"><table><thead><tr><th>Test</th><th>Duration</th><th>Covers</th><th>Priority</th><th>True failure rate</th><th>Observed</th><th>Runs</th><th>Last status</th></tr></thead><tbody id="catalog"></tbody></table></div>
+    </div>
+  </main>
+</section>
+
+<script>
+const COLORS = { random:"#94a3b8", greedy:"#fbbf24", alns:"#a78bfa", "alns-rl":"#38bdf8" };
+const pct = value => (value * 100).toFixed(1) + "%";
+const $ = id => document.getElementById(id);
+let simulation = null;
+let simulationStarted = false;
+
+function activate(nav, button) {
+  nav.querySelectorAll("button").forEach(item => item.classList.remove("active"));
+  button.classList.add("active");
+  const main = nav.nextElementSibling;
+  main.querySelectorAll(".tab").forEach(tab => tab.classList.remove("active"));
+  main.querySelector("#" + button.dataset.tab).classList.add("active");
+}
+document.querySelectorAll("nav").forEach(nav => {
+  nav.querySelectorAll("button").forEach(button => {
+    button.onclick = () => activate(nav, button);
+  });
+});
+
+function showView(name) {
+  $("shop-view").classList.toggle("active", name === "shop");
+  $("sim-view").classList.toggle("active", name === "sim");
+  $("show-shop").classList.toggle("primary", name === "shop");
+  $("show-sim").classList.toggle("primary", name === "sim");
+  if (name === "sim" && !simulationStarted) {
+    simulationStarted = true;
+    $("run").click();
+  }
+}
+$("show-shop").onclick = () => showView("shop");
+$("show-sim").onclick = () => showView("sim");
+
+function renderShop(shop) {
+  const empty = !shop.available;
+  $("shop-empty").hidden = !empty;
+  $("shop-body").hidden = empty;
+  if (empty) {
+    $("shop-empty").textContent = shop.message || "No shop run saved yet.";
+    return;
+  }
+  $("shop-kpis").innerHTML = [
+    ["Full suite", shop.suite_count + " tests, " + shop.suite_seconds.toFixed(1) + "s"],
+    ["Budget", shop.budget_seconds.toFixed(1) + "s"],
+    ["Candidates", shop.candidate_ids.length + " of " + shop.suite_count],
+    ["Model", shop.model],
+  ].map(([label, value]) => `<div class="card kpi"><div class="muted">${label}</div><div class="value">${value}</div></div>`).join("");
+  const git = shop.git || {};
+  $("shop-git-label").textContent = git.label || "This saved run has no diff text. Run adaptive-ci demo again.";
+  $("shop-diff").textContent = git.diff || "";
+  $("shop-score-rows").innerHTML = (shop.scores || []).map(row => `<tr><td>${row.id}</td><td>${row.duration_seconds.toFixed(2)}</td><td>${row.covers}</td><td>${row.priority.toFixed(2)}</td><td>${row.failure_ema.toFixed(2)}</td><td>${row.failure_probability.toFixed(2)}</td><td>${row.value.toFixed(2)}</td></tr>`).join("");
+  const order = ["retest-all","random","coverage","history","ml-rank","greedy","alns","alns-rl"];
+  $("shop-method-rows").innerHTML = order.filter(name => shop.methods[name]).map(name => {
+    const row = shop.methods[name];
+    return `<tr><td>${name}</td><td>${row.count}</td><td>${row.seconds.toFixed(2)}s</td><td>${row.fits_budget ? "yes" : "no"}</td><td>${row.bug_tests.length}/3</td><td>${row.includes_long_test ? "yes" : "no"}</td></tr>`;
+  }).join("");
+  $("shop-note").textContent = "Random and coverage can miss the bug. On this saved run, greedy and ALNS-RL choose the same tests.";
+  const outcomes = shop.run && shop.run.outcomes;
+  if (!outcomes) {
+    $("shop-result-rows").innerHTML = "";
+    $("shop-result-note").textContent = "This saved run did not execute tests. Run adaptive-ci demo without --no-execute.";
+  } else {
+    $("shop-result-rows").innerHTML = outcomes.map(outcome => `<tr><td>${outcome.test_id}</td><td><span class="pill ${outcome.status === "passed" ? "pass" : "fail"}">${outcome.status}</span></td><td>${outcome.duration_seconds.toFixed(2)}</td></tr>`).join("");
+    $("shop-result-note").textContent = "These are the tests the command actually ran.";
+  }
+  const policy = shop.q_policy || {};
+  const search = shop.search || {};
+  $("shop-brain-kpis").innerHTML = [
+    ["States learned", Object.keys(policy).length],
+    ["Q updates", search.q_updates || 0],
+    ["Accepted moves", search.accepted_moves || 0],
+    ["Better plans found", search.improvements || 0],
+  ].map(([label, value]) => `<div class="card kpi"><div class="muted">${label}</div><div class="value">${value}</div></div>`).join("");
+  $("shop-policy").innerHTML = Object.entries(policy).map(([state, action]) => `<tr><td>${state}</td><td>${action.destroy}</td><td>${action.repair}</td><td>${Math.round(action.level * 100)}%</td><td>${action.q}</td></tr>`).join("");
+  const counts = Object.entries(search.operator_counts || {}).sort((a, b) => b[1] - a[1]).slice(0, 12);
+  const top = counts.length ? counts[0][1] : 1;
+  $("shop-operators").innerHTML = counts.map(([key, count]) => `<tr><td class="muted">${key}</td><td style="width:45%"><div class="bar" style="width:${(count / top) * 100}%"></div></td><td>${count}</td></tr>`).join("");
+}
+
+async function loadShop() {
+  $("shop-status").textContent = "Loading saved run…";
+  try {
+    const response = await fetch("/api/shop");
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || "request failed");
+    renderShop(data);
+    $("shop-status").textContent = data.available ? data.source : "";
+  } catch (error) {
+    $("shop-empty").hidden = false;
+    $("shop-body").hidden = true;
+    $("shop-empty").textContent = error.message;
+    $("shop-status").textContent = "";
+  }
+}
+$("refresh-shop").onclick = loadShop;
+$("run-shop").onclick = async () => {
+  $("run-shop").disabled = true;
+  $("shop-status").textContent = "Running the shop demo. This takes about 8 seconds.";
+  try {
+    const response = await fetch("/api/shop/run", { method: "POST" });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || "request failed");
+    renderShop(data);
+    $("shop-status").textContent = data.exit_code === 0
+      ? "Finished. The pricing file has been restored."
+      : "The run finished, but the expected tests did not fail.";
+  } catch (error) {
+    $("shop-status").textContent = error.message;
+  } finally {
+    $("run-shop").disabled = false;
+  }
+};
+
+$("run").onclick = async () => {
+  const query = new URLSearchParams(["tests","builds","budget","seed","iterations"].map(key => [key, $(key).value]));
+  $("run").disabled = true;
+  $("status").textContent = "Running…";
+  const started = performance.now();
+  try {
+    const response = await fetch("/api/simulate?" + query);
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error);
+    simulation = data;
+    renderSimulation();
+    $("status").textContent = `Done in ${((performance.now() - started) / 1000).toFixed(1)}s`;
+  } catch (error) {
+    $("status").textContent = "Error: " + error.message;
+  } finally {
+    $("run").disabled = false;
+  }
+};
+
+function renderSimulation() {
+  const methods = simulation.methods;
+  const learned = methods["alns-rl"];
+  $("kpis").innerHTML = [
+    ["ALNS-RL fault detection", pct(learned.fault_detection_rate)],
+    ["Gain vs random", "+" + ((learned.fault_detection_rate - methods.random.fault_detection_rate) * 100).toFixed(1) + " pts"],
+    ["Budget use", pct(learned.mean_budget_utilization)],
+    ["Q updates", learned.q_updates.toLocaleString()],
+  ].map(([label, value]) => `<div class="card kpi"><div class="muted">${label}</div><div class="value">${value}</div></div>`).join("");
+  $("methods").innerHTML = Object.entries(methods).map(([name, row]) => `<tr><td style="color:${COLORS[name] || "inherit"}">${name}</td><td>${pct(row.fault_detection_rate)}</td><td>${pct(row.faulty_build_detection_rate)}</td><td>${pct(row.mean_budget_utilization)}</td><td>${row.mean_objective.toFixed(3)}</td><td>${row.selection_overhead_seconds.toFixed(3)}s</td></tr>`).join("");
+  drawChart();
+  $("brainKpis").innerHTML = [
+    ["States visited", simulation.policy.states_visited + " / 27"],
+    ["Learned Q values", simulation.policy.learned_values],
+    ["First half", pct(learned.first_half_fault_detection_rate)],
+    ["Second half", pct(learned.second_half_fault_detection_rate)],
+  ].map(([label, value]) => `<div class="card kpi"><div class="muted">${label}</div><div class="value">${value}</div></div>`).join("");
+  $("policy").innerHTML = Object.entries(simulation.q_policy).map(([state, action]) => `<tr><td>${state}</td><td>${action.destroy}</td><td>${action.repair}</td><td>${Math.round(action.level * 100)}%</td><td>${action.q}</td></tr>`).join("");
+  const counts = Object.entries(simulation.operator_counts);
+  const top = counts.length ? counts[0][1] : 1;
+  $("operators").innerHTML = counts.map(([key, count]) => `<tr><td class="muted">${key}</td><td style="width:45%"><div class="bar" style="width:${(count / top) * 100}%"></div></td><td>${count}</td></tr>`).join("");
+  $("catalog").innerHTML = simulation.catalog.map(test => `<tr><td>${test.id}</td><td>${test.duration_seconds.toFixed(1)}s</td><td class="muted">${test.covers.join(", ")}</td><td>${test.priority}</td><td>${pct(test.true_failure_rate)}</td><td>${pct(test.observed_failure_rate)}</td><td>${test.runs}</td><td>${test.runs ? `<span class="pill ${test.last_failed ? "fail" : "pass"}">${test.last_failed ? "FAIL" : "PASS"}</span>` : "-"}</td></tr>`).join("");
+}
+
+function drawChart() {
+  const width = 900, height = 340, pad = 40, series = simulation.timeline;
+  const count = Object.values(series)[0].length;
+  const x = index => pad + (index / Math.max(1, count - 1)) * (width - 2 * pad);
+  const y = value => height - pad - value * (height - 2 * pad);
+  let svg = "";
+  for (let value = 0; value <= 1; value += 0.25) {
+    svg += `<line x1="${pad}" x2="${width - pad}" y1="${y(value)}" y2="${y(value)}" stroke="#22304a"/><text x="4" y="${y(value) + 4}" fill="#8193b2" font-size="11">${value * 100}%</text>`;
+  }
+  for (const [name, points] of Object.entries(series)) {
+    svg += `<polyline fill="none" stroke="${COLORS[name]}" stroke-width="2" points="${points.map((value, index) => `${x(index)},${y(value)}`).join(" ")}"/>`;
+  }
+  $("chart").innerHTML = svg;
+  $("legend").innerHTML = Object.keys(series).map(name => `<span style="color:${COLORS[name]}">&#9632; ${name}</span>`).join("");
+}
+
+loadShop();
+</script>
+</body>
+</html>
